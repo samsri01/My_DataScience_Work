@@ -1,0 +1,410 @@
+
+```{r}
+
+#1. Data Exploration: This should include summary statistics, means, medians, quartiles, or any other relevant information about the data set. Please include some conclusions in the R Markdown text.
+
+library(readr)
+
+require(RCurl)
+
+UNStatistics <-read.csv(text=getURL("https://raw.githubusercontent.com/samsri01/Repo-For-CSV-File-Storage/master/UN_Statistics.csv"),header=TRUE)
+
+summary.data.frame(UNStatistics)
+
+# Analyzing Data to draw some hypothesis/conclusions
+# group is a vector with 3 levels "africa","oecd","other"
+levels(UNStatistics$group)
+
+#Dividing the UNStatics data frame individually for different groups to analyze, it better.
+
+#Dataframe with group as "africa"
+
+africanCountriesData <- subset.data.frame(UNStatistics,group=="africa", select=c(X,region,group,fertility,ppgdp,lifeExpF,pctUrban,infantMortality))
+summary.data.frame(africanCountriesData)
+
+#Dataframe with group as "oecd" and "other"
+
+nonAfricanCountriesData <- subset.data.frame(UNStatistics,group=="oecd" | group=="other", select=c(X,region,group,fertility,ppgdp,lifeExpF,pctUrban,infantMortality))
+summary.data.frame(nonAfricanCountriesData)
+
+#Dataframe with group as "oecd"
+
+oecdCountriesData <- subset.data.frame(UNStatistics,group=="oecd" , select=c(X,region,group,fertility,ppgdp,lifeExpF,pctUrban,infantMortality))
+summary.data.frame(oecdCountriesData)
+
+#Dataframe with group as "other"
+
+otherCountriesData <- subset.data.frame(UNStatistics,group== "other" , select=c(X,region,group,fertility,ppgdp,lifeExpF,pctUrban,infantMortality))
+summary.data.frame(otherCountriesData)
+
+
+#Drawing inferential statistics using t.test function for the above data frames.
+#Comparing african data frame with OECD and other country details
+
+#Below t.test() results gives us a positive number for 't', meaning, the urban population in all the non african countries is greater than african nations. 
+
+t.test(nonAfricanCountriesData$pctUrban,africanCountriesData$pctUrban)
+
+#Below t.test() results gives us a positive number for 't', meaning, the GDP for all the non african countries is greater than african nations.Implies the quality of living is better in non african countries when compared to african nations.
+
+t.test(nonAfricanCountriesData$ppgdp,africanCountriesData$ppgdp)
+
+#Below t.test() results gives us a positive number for 't', meaning, the fertiltiy or children/woman is higher in african countries compared to non african nations.
+
+t.test(africanCountriesData$fertility,nonAfricanCountriesData$fertility)
+
+#Below t.test() results gives us a positive number for 't', meaning, the life expectancy in woman is higher in non african countries when compared to african nations.
+
+t.test(nonAfricanCountriesData$lifeExpF,africanCountriesData$lifeExpF)
+
+#Below t.test() results gives us a positive number for 't', meaning, the infant mortality rate per 1000 live births is higher in african countries when compared to non african nations.
+
+t.test(africanCountriesData$infantMortality,nonAfricanCountriesData$infantMortality)
+
+```
+
+Hypothesis (Preliminary Conclusions observing the dataset) : All the variables look to be dependent on each other, the higher the urban percentage (pcturban), the better GDP/ quality of living (ppgdp), the lower the fertility ratio (fertiltiy - number of children/woman) - which means better education on family planning/population control, higher the life expectancy for female - probability of deaths during pregnancy is lower as the fertility ratio is low and lower the infant mortality ratio (death of infants under age 1 per 1000 live births).
+
+```{r}
+#2. Data wrangling: Please perform some basic transformations. They will need to make sense but could include column renaming, creating a subset of the data, replacing values, or creating new columns with derived data (for example - if it makes sense you could sum two columns together)
+
+#We have already created four subset data frames -
+#africanCountriesData
+#nonAfricanCountriesData
+#oecdCountriesData
+#otherCountriesData
+
+#Renaming the column names in both the data frames with meaningful names
+
+colnames(africanCountriesData) <- c("COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","INFANT_DEATH_RATE_PER_THOUSAND")
+summary.data.frame(africanCountriesData)
+
+colnames(nonAfricanCountriesData) <- c("COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","INFANT_DEATH_RATE_PER_THOUSAND")
+summary.data.frame(nonAfricanCountriesData)
+
+colnames(oecdCountriesData) <- c("COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","INFANT_DEATH_RATE_PER_THOUSAND")
+summary.data.frame(oecdCountriesData)
+
+colnames(otherCountriesData) <- c("COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","INFANT_DEATH_RATE_PER_THOUSAND")
+summary.data.frame(otherCountriesData)
+
+colnames(UNStatistics) <- c("COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","INFANT_DEATH_RATE_PER_THOUSAND")
+summary.data.frame(UNStatistics)
+
+#Creating new columns with derived data
+
+#Adding a new column called "SERIAL_NUMBER"
+
+africanCountriesData$SERIAL_NUMBER <- c(1:nrow(africanCountriesData))
+
+#Get Rural population percentage by subtracting 100 from urban population
+
+africanRuralPercentage <- as.integer(100 - africanCountriesData$URBAN_POPULATION_PERCENTAGE)
+
+#Add RURAL_POPULATION_PERCENTAGE to the data frame
+
+africanCountriesData$RURAL_POPULATION_PERCENTAGE <- africanRuralPercentage
+
+#Find the GDP contribution by URBAN_POPULATION 
+africanUrbanGDPContribution <- africanCountriesData$GDP * (africanCountriesData$URBAN_POPULATION_PERCENTAGE / 100)
+africanCountriesData$GDP_URBAN_CONTRIBUTION <- africanUrbanGDPContribution
+
+
+#Find the GDP contribution by RURAL_POPULATION 
+africanRuralGDPContribution <- africanCountriesData$GDP * (africanCountriesData$RURAL_POPULATION_PERCENTAGE / 100)
+africanCountriesData$GDP_RURAL_CONTRIBUTION <- africanRuralGDPContribution
+
+#Arranging the columns to a meaningful order
+
+africanCountriesData <- africanCountriesData[,c("SERIAL_NUMBER","COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","RURAL_POPULATION_PERCENTAGE","GDP_URBAN_CONTRIBUTION","GDP_RURAL_CONTRIBUTION","INFANT_DEATH_RATE_PER_THOUSAND")] 
+names(africanCountriesData)
+
+summary.data.frame(africanCountriesData)
+
+#---------------------------------------------
+#---------------------------------------------
+
+#Creating new columns with derived data for 'nonAfricanCountriesData'
+
+#Adding a new column called "SERIAL_NUMBER"
+
+nonAfricanCountriesData$SERIAL_NUMBER <- c(1:nrow(nonAfricanCountriesData))
+
+#Get Rural population percentage by subtracting 100 from urban population
+
+nonAfricanRuralPercentage <- as.integer(100 - nonAfricanCountriesData$URBAN_POPULATION_PERCENTAGE)
+
+#Add RURAL_POPULATION_PERCENTAGE to the data frame
+
+nonAfricanCountriesData$RURAL_POPULATION_PERCENTAGE <- nonAfricanRuralPercentage
+
+#Find the GDP contribution by URBAN_POPULATION 
+nonAfricanUrbanGDPContribution <- nonAfricanCountriesData$GDP * (nonAfricanCountriesData$URBAN_POPULATION_PERCENTAGE / 100)
+nonAfricanCountriesData$GDP_URBAN_CONTRIBUTION <- nonAfricanUrbanGDPContribution
+
+
+#Find the GDP contribution by RURAL_POPULATION 
+nonAfricanRuralGDPContribution <- nonAfricanCountriesData$GDP * (nonAfricanCountriesData$RURAL_POPULATION_PERCENTAGE / 100)
+nonAfricanCountriesData$GDP_RURAL_CONTRIBUTION <- nonAfricanRuralGDPContribution
+
+#Arranging the columns to a meaningful order
+
+nonAfricanCountriesData <- nonAfricanCountriesData[,c("SERIAL_NUMBER","COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","RURAL_POPULATION_PERCENTAGE","GDP_URBAN_CONTRIBUTION","GDP_RURAL_CONTRIBUTION","INFANT_DEATH_RATE_PER_THOUSAND")] 
+
+summary.data.frame(nonAfricanCountriesData)
+
+#---------------------------------------------
+#---------------------------------------------
+
+#Creating new columns with derived data for 'oecdCountriesData'
+
+#Adding a new column called "SERIAL_NUMBER"
+
+oecdCountriesData$SERIAL_NUMBER <- c(1:nrow(oecdCountriesData))
+
+#Get Rural population percentage by subtracting 100 from urban population
+
+oecdCountriesRuralPercentage <- as.integer(100 - oecdCountriesData$URBAN_POPULATION_PERCENTAGE)
+oecdCountriesRuralPercentage
+
+#Add RURAL_POPULATION_PERCENTAGE to the data frame
+
+oecdCountriesData$RURAL_POPULATION_PERCENTAGE <- oecdCountriesRuralPercentage
+
+#Find the GDP contribution by URBAN_POPULATION 
+oecdUrbanGDPContribution <- oecdCountriesData$GDP * (oecdCountriesData$URBAN_POPULATION_PERCENTAGE / 100)
+oecdCountriesData$GDP_URBAN_CONTRIBUTION <- oecdUrbanGDPContribution
+
+
+#Find the GDP contribution by RURAL_POPULATION 
+oecdRuralGDPContribution <- oecdCountriesData$GDP * (oecdCountriesData$RURAL_POPULATION_PERCENTAGE / 100)
+oecdCountriesData$GDP_RURAL_CONTRIBUTION <- oecdRuralGDPContribution
+
+#Arranging the columns to a meaningful order
+
+oecdCountriesData <- oecdCountriesData[,c("SERIAL_NUMBER","COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","RURAL_POPULATION_PERCENTAGE","GDP_URBAN_CONTRIBUTION","GDP_RURAL_CONTRIBUTION","INFANT_DEATH_RATE_PER_THOUSAND")] 
+
+summary.data.frame(oecdCountriesData)
+
+#---------------------------------------------
+#---------------------------------------------
+
+#Creating new columns with derived data for 'otherCountriesData'
+
+#Adding a new column called "SERIAL_NUMBER"
+
+otherCountriesData$SERIAL_NUMBER <- c(1:nrow(otherCountriesData))
+
+#Get Rural population percentage by subtracting 100 from urban population
+
+otherCountriesRuralPercentage <- as.integer(100 - otherCountriesData$URBAN_POPULATION_PERCENTAGE)
+
+#Add RURAL_POPULATION_PERCENTAGE to the data frame
+
+otherCountriesData$RURAL_POPULATION_PERCENTAGE <- otherCountriesRuralPercentage
+
+#Find the GDP contribution by URBAN_POPULATION 
+otherUrbanGDPContribution <- otherCountriesData$GDP * (otherCountriesData$URBAN_POPULATION_PERCENTAGE / 100)
+otherCountriesData$GDP_URBAN_CONTRIBUTION <- otherUrbanGDPContribution
+
+
+#Find the GDP contribution by RURAL_POPULATION 
+otherRuralGDPContribution <- otherCountriesData$GDP * (otherCountriesData$RURAL_POPULATION_PERCENTAGE / 100)
+otherCountriesData$GDP_RURAL_CONTRIBUTION <- otherRuralGDPContribution
+
+#Arranging the columns to a meaningful order
+
+otherCountriesData <- otherCountriesData[,c("SERIAL_NUMBER","COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","RURAL_POPULATION_PERCENTAGE","GDP_URBAN_CONTRIBUTION","GDP_RURAL_CONTRIBUTION","INFANT_DEATH_RATE_PER_THOUSAND")] 
+
+summary.data.frame(otherCountriesData)
+
+#---------------------------------------------
+#---------------------------------------------
+
+#Creating new columns with derived data for 'UNStatistics'
+
+#Adding a new column called "SERIAL_NUMBER"
+
+UNStatistics$SERIAL_NUMBER <- c(1:nrow(UNStatistics))
+
+#Get Rural population percentage by subtracting 100 from urban population
+
+UNCountriesRuralPercentage <- as.integer(100 - UNStatistics$URBAN_POPULATION_PERCENTAGE)
+
+#Add RURAL_POPULATION_PERCENTAGE to the data frame
+
+UNStatistics$RURAL_POPULATION_PERCENTAGE <- UNCountriesRuralPercentage
+
+#Find the GDP contribution by URBAN_POPULATION 
+UNCountriesUrbanGDPContribution <- UNStatistics$GDP * (UNStatistics$URBAN_POPULATION_PERCENTAGE / 100)
+UNStatistics$GDP_URBAN_CONTRIBUTION <- UNCountriesUrbanGDPContribution
+
+
+#Find the GDP contribution by RURAL_POPULATION 
+UNCountriesRuralGDPContribution <- UNStatistics$GDP * (UNStatistics$RURAL_POPULATION_PERCENTAGE / 100)
+UNStatistics$GDP_RURAL_CONTRIBUTION <- UNCountriesRuralGDPContribution
+
+#Arranging the columns to a meaningful order
+
+
+UNStatistics <- UNStatistics[,c("SERIAL_NUMBER","COUNTRY_NAME","COUNTRY_REGION","COUNTRY_GROUP","NO_OF_CHILDREN_PER_WOMAN","GDP","FEMALE_LIFE_EXPECTANCY","URBAN_POPULATION_PERCENTAGE","RURAL_POPULATION_PERCENTAGE","GDP_URBAN_CONTRIBUTION","GDP_RURAL_CONTRIBUTION","INFANT_DEATH_RATE_PER_THOUSAND")] 
+
+UNStatistics
+summary.data.frame(UNStatistics)
+```
+
+```{r}
+#3. Graphics: Please make sure to display at least one scatter plot, box plot and histogram. Don't be limited to this. Please explore the many other options in R packages such as ggplot2.
+
+#Comparing all other variables against GDPs for countires falling under 3 categories 'africa, 'oecd' and 'other'
+
+#Scatter plots
+install.packages("ggplot2",repos = "http://cran.us.r-project.org")
+library(ggplot2)
+
+#Compare Urban population against GDP
+
+plot(GDP~URBAN_POPULATION_PERCENTAGE, data = africanCountriesData,las = 1)
+abline(lm(GDP~URBAN_POPULATION_PERCENTAGE, data = africanCountriesData))
+
+plot(GDP~URBAN_POPULATION_PERCENTAGE, data = oecdCountriesData,las = 1)
+abline(lm(GDP~URBAN_POPULATION_PERCENTAGE, data = oecdCountriesData))
+
+plot(GDP~URBAN_POPULATION_PERCENTAGE, data = otherCountriesData,las = 1)
+abline(lm(GDP~URBAN_POPULATION_PERCENTAGE, data = otherCountriesData))
+
+#Compare Female life expectancy against GDP
+
+plot(GDP~FEMALE_LIFE_EXPECTANCY, data = africanCountriesData, las = 1)
+abline(lm(GDP~FEMALE_LIFE_EXPECTANCY, data = africanCountriesData))
+
+plot(GDP~FEMALE_LIFE_EXPECTANCY, data = oecdCountriesData, las = 1)
+abline(lm(GDP~FEMALE_LIFE_EXPECTANCY, data = oecdCountriesData))
+
+plot(GDP~FEMALE_LIFE_EXPECTANCY, data = otherCountriesData, las = 1)
+abline(lm(GDP~FEMALE_LIFE_EXPECTANCY, data = otherCountriesData))
+
+#Compare Number Of Children per woman against GDP
+
+plot(GDP~NO_OF_CHILDREN_PER_WOMAN, data = africanCountriesData, las = 1)
+abline(lm(GDP~NO_OF_CHILDREN_PER_WOMAN, data = africanCountriesData))
+
+plot(GDP~NO_OF_CHILDREN_PER_WOMAN, data = oecdCountriesData, las = 1)
+abline(lm(GDP~NO_OF_CHILDREN_PER_WOMAN, data = oecdCountriesData))
+
+plot(GDP~NO_OF_CHILDREN_PER_WOMAN, data = otherCountriesData, las = 1)
+abline(lm(GDP~NO_OF_CHILDREN_PER_WOMAN, data = otherCountriesData))
+
+#Compare Infant deaht rate per thousand against GDP
+
+plot(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = africanCountriesData, las = 1)
+abline(lm(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = africanCountriesData))
+
+plot(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = oecdCountriesData, las = 1)
+abline(lm(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = oecdCountriesData))
+
+plot(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = otherCountriesData, las = 1)
+abline(lm(GDP~INFANT_DEATH_RATE_PER_THOUSAND, data = otherCountriesData))
+
+#Histograms For GDP of the countries categorized under 3 groups 'africa', 'oecd' and 'other'
+
+ggplot(africanCountriesData, aes(x = GDP)) +
+  geom_histogram()
+
+ggplot(oecdCountriesData, aes(x = GDP)) +
+  geom_histogram()
+
+ggplot(otherCountriesData, aes(x = GDP)) +
+  geom_histogram()
+
+ggplot(UNStatistics,aes(x=GDP)) +
+  geom_histogram()
+
+#Box Plots
+
+boxplot(GDP~COUNTRY_NAME,data=UNStatistics, main="UN Statistics For Nations", 
+   xlab="GDP", ylab="Country Name")
+
+boxplot(africanCountriesData$GDP_RURAL_CONTRIBUTION)
+
+boxplot(oecdCountriesData$GDP_RURAL_CONTRIBUTION)
+
+boxplot(otherCountriesData$GDP_RURAL_CONTRIBUTION)
+
+boxplot(africanCountriesData$GDP_URBAN_CONTRIBUTION)
+
+boxplot(oecdCountriesData$GDP_RURAL_CONTRIBUTION)
+
+boxplot(otherCountriesData$GDP_RURAL_CONTRIBUTION)
+
+#Density Plots
+
+plot(density(africanCountriesData$GDP),main = "GDP Density Plot For African Countries",col="gold")
+polygon(density(africanCountriesData$GDP),main = "GDP Density Plot For African Countries",col="blue",border = "red")
+
+plot(density(oecdCountriesData$GDP),main = "GDP Density Plot For OECD Countries",col="gold")
+polygon(density(oecdCountriesData$GDP),main = "GDP Density Plot For OECD Countries",col="gold",border = "red")
+
+plot(density(otherCountriesData$GDP),main = "GDP Density Plot For Other Countries",col="gold")
+polygon(density(otherCountriesData$GDP),main = "GDP Density Plot For Other Countries",col="purple",border = "red")
+
+#Violin Plots
+install.packages("vioplot",repos = "http://cran.us.r-project.org")
+library(vioplot)
+
+GDP_Africa <- africanCountriesData$GDP
+GDP_OECD <- oecdCountriesData$GDP
+GDP_Other <- otherCountriesData$GDP
+vioplot(GDP_Africa, GDP_OECD,GDP_Other, names=c("Africa", "OECD", "Other"), 
+   col="blue")
+title("GDP Comparision")
+
+FLP_Africa <- africanCountriesData$FEMALE_LIFE_EXPECTANCY
+FLP_OECD <- oecdCountriesData$FEMALE_LIFE_EXPECTANCY
+FLP_Other <- otherCountriesData$FEMALE_LIFE_EXPECTANCY
+vioplot(FLP_Africa, FLP_OECD,FLP_Other, names=c("Africa", "OECD", "Other"), 
+   col="gold")
+title("FEMALE_LIFE_EXPECTANCY Comparision")
+
+
+#Bag Plots - 2D extensions of Box Plots
+
+install.packages("aplpack",repos = "http://cran.us.r-project.org")
+library(aplpack)
+attach(africanCountriesData)
+bagplot(GDP,RURAL_POPULATION_PERCENTAGE, xlab="GDP", ylab="% Rural Population",
+  main="GDP Impact By Rural Population")
+
+
+#Comparing GDP's for the countries categorized as one of the 3 Groups 'africa', 'oecd' and 'other'
+
+gdpDataFrame <- data.frame(africanCountriesData$GDP[c(1:nrow(oecdCountriesData))],oecdCountriesData$GDP,otherCountriesData$GDP[c(1:nrow(oecdCountriesData))])
+colnames(gdpDataFrame) <- c("GDP_AFRICAN_NATIONS","GDP_OECD_NATIONS","GDP_OTHER_NATIONS")
+
+ggplot(gdpDataFrame, aes(c(1:nrow(gdpDataFrame)), y = value, color = variable)) +
+    geom_point(aes(y = GDP_AFRICAN_NATIONS, col = "GDP_AFRICAN_NATIONS")) +
+    geom_point(aes(y = GDP_OECD_NATIONS, col = "GDP_OECD_NATIONS")) +     geom_point(aes(y = GDP_OTHER_NATIONS, col = "GDP_OTHER_NATIONS"))
+
+```
+
+```{r}
+#4. Meaningful question for analysis: Please state at the beginning a meaningful question for analysis. Use the first three steps and anything else that would be helpful to answer the question you are posing from the data set you chose. Please write a brief conclusion paragraph in R markdown at the end.
+```
+
+Question For Analysis :
+
+Is GDP (Quality OF Living) is dependent on other variables in the observation, such as 'Urban Population Percentage' ?
+
+It is clearly observed from above graphs, summary details, that the major contribution of GDP is by urban population. The slope of the linear regression line for the scatter plots are also positive, indicating more the people staying in urban areas, more will be the GDP for the country and the quality of life.
+
+It can also be observed, higher the urban population and GDP, lesser is the probability for infant mortality, lesser will be the children per woman and higher will be the expectancy of females living in the country. We can observe these from the scatter plots and their slopes, which are all negative, indicating, higher the GDP value, lesser will be these values.
+
+Quality of life is dependent on the level of urbanization in the country, which also impacts other variables in the observation.
+
+Also sampling out the observations, with respect to different groups such as 'africa', 'oecd' and 'other', this behavior is observed in all respects. We have also captured different plots for each one of them above.
+```{r}
+#5. BONUS - place the original .csv in a github file and have R read from the link. This will be a very useful skill as you progress in your data science education and career.
+
+# This project uses the checked data set in github, this is the url for the dataset, from which this R program reads it - https://raw.githubusercontent.com/samsri01/Repo-For-CSV-File-Storage/master/UN_Statistics.csv
+
+```

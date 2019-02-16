@@ -1,0 +1,100 @@
+---
+title: "Math_Assignment_1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+#Derivatives
+
+#Find the derivatives with respect to x
+
+# 1.F(x|x???0)=1???e^?????x
+
+deriv1 = D(expression(1-e^(-lambda*x)), "x")
+deriv1
+
+# 2.F(x|b>a)=x???a/b???a
+
+deriv2 = D(expression((x-a)/(b-a)),"x")
+deriv2
+
+# 3. F(x|a<x???c???b)=(x???a)^2/(b???a)*(c???a)
+
+deriv3 = D(expression(((x-a)^2)/((b-a)*(c-a))), "x")
+deriv3
+
+#4. F(x|a???c<x<b)=1???((b???x)^2/(b???a)*(c???a))
+
+deriv4 = D(expression(1-(((b-x)^2)/((b-a)*(c-a)))), "x")
+deriv4
+```
+
+```{r}
+# Integrals
+
+#Definite Integral
+
+function1 <- function(x)
+{
+  3*(x^3)
+}
+integrate(function1,lower=0,upper = 10)
+
+#Indefinite Integral is calculated using anitDerivative
+library(mosaicCalc)
+
+antiD(x*(lambda *(e^(-lambda*x))) ~ x)
+
+# This returns error, Substituting the values of b=2, a =1, gives 0.5 as answer.
+# Without substitution values for b,a returns error
+#function3a <- function(x)
+#{
+ #  1/(b-a) * x^0
+#}
+#integrate(function3a,lower=0,upper = 0.5, stop.on.error = FALSE)
+
+# Substituting values of b,a as 2,1 respectively
+function3b <- function(x, b= 2, a =1)
+{
+   1/(b-a) * x^0
+}
+integrate(function3b,lower=0,upper = 0.5, stop.on.error = FALSE)
+
+# Question 8, is tough, need more time to read the concepts of Probability distribution, I will try this again, once we cover those topics.
+```
+
+```{r}
+#Linear Algebra
+
+# 1. Inverse using Gaussian row reduction of matrix A, matrix(c(1,2,3,3,3,1,4,6,8),3,3, byrow = TRUE )
+
+A <- matrix(c(1,2,3,3,3,1,4,6,8),3,3, byrow = TRUE )
+A
+I <- diag(3)
+I
+library(matlib)
+
+gaussianElimination(A,I,verbose = TRUE)
+inv(A)
+
+#2. Determinant of A
+
+det(A)
+
+
+#3. LU Decomposition for A
+
+library(matrixcalc)
+
+lu.decomposition(A)
+
+#4. Multiply Matrix by Inverse
+
+A %*% inv(A)
+
+```
+
+

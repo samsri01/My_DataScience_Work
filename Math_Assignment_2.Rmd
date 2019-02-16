@@ -1,0 +1,232 @@
+---
+title: "Data_Science_Math_Assignment_2"
+output: html_document
+---
+```{r}
+
+library(prob)
+#Problem 1. Dice Rolls
+#If you roll a pair of fair dice, what is the probability of..
+
+#a. getting a sum of 1? 
+
+nrow(subset(rolldie(2), X1+X2 == 1))/nrow(rolldie(2))
+
+#b.getting a sum of 5?
+
+nrow(subset(rolldie(2), X1+X2 == 5))/nrow(rolldie(2))
+
+
+#c. getting a sum of 12? 
+
+nrow(subset(rolldie(2), X1+X2 == 12))/nrow(rolldie(2))
+
+```
+
+```{r}
+
+#Problem 2. School absences
+#Data collected at elementary schools in DeKalb County, GA suggest that each year roughly 25% of students miss exactly one day of school, 15% miss 2 days, and 28% miss 3 or more days due to sickness.
+
+#(a) What is the probability that a student chosen at random doesn't miss any days of school due to sickness this year?
+
+# Assume P(X = 0) is the probability of students not missing any day of school. P(X=1) is probability of students missing atleast one day. P(X=2) is the probability of students not missing two days of school. P(X=3) is the probability of students not missing three days of school.
+
+# P(X=1) = 0.25; P(X=2) = 0.15; P(X>=3) = 0.28
+#P(X) = P(X=0) + P(X=1) + P(X=2) + P(X>=3) =1
+# P(X=0) = 1 - (P(X=1) + P(X=2) + P(X?=3))
+
+result1 <- (1 - sum(0.25,0.15,0.28))
+result1
+
+#(b) What is the probability that a student chosen at random misses no more than one day?
+
+#P(X<=1) = 1 - (P(X=2) + P(X>=3))
+
+result2 <- (1 - sum(0.15,0.28))
+result2
+
+#(c) What is the probability that a student chosen at random misses at least one day?
+ 
+# P(X>=1) = P(X=1) + P(X=2) + P(X<=3)
+
+result3 <- sum(0.25,0.15,0.28)
+result3
+
+# (d) If a parent has two kids at a DeKalb County elementary school, what is the probability that neither kid will miss any school? Note any assumption you must make to answer this question.
+
+#Assumption : Both the kids of the parent are healthy, and these are independent events meaning one probability does not impact other
+
+# P(C1 and C2) = P(C1) * P(C2)
+# Probability for a child not missing any day - 0.32
+
+result4 <- 0.32 * 0.32
+result4
+
+# (e) If a parent has two kids at a DeKalb County elementary school, what is the probability that both kids will miss some school, i.e. at least one day? Note any assumption you make.
+
+# Assumption : Both the kids of the parent are unhealthy, and these are independent events meaning one probability does not impact other
+
+# P(C1 and C2) = P(C1) * P(C2)
+# Probability for a child missing at least one day - 0.68
+
+result5 <- 0.68 * 0.68
+result5
+
+#(f) If you made an assumption in part (d) or (e), do you think it was reasonable? If you didn't make any assumptions, double check your earlier answers.
+
+# Yes the assumptions are reasonable, as the health of children are independent variables. But there is also a probability of one getting impacted health wise when staying in the same family, which can be ignored.
+
+
+```
+
+```{r}
+#Problem 3. Health coverage, relative frequencies
+#The Behavioral Risk Factor Surveillance System (BRFSS) is an annual telephone survey designed to identify risk factors in the adult population and report emerging health trends. The following table displays the distribution of health status of respondents to this survey (excellent, very good, good, fair, poor) and whether or not they have health insurance.
+
+mat=matrix(c(.023, 0.0364, 0.0427, 0.0192, 0.0050,0.2099, 0.3123 ,0.2410 ,0.0817,0.0289), byrow=TRUE, nrow=2)
+colnames(mat)=c("Excellent", "Very Good","Good", "Fair","Poor")
+rownames(mat)=c("No Coverage","Coverage")
+mat
+
+# (a) Are being in excellent health and having health coverage mutually exclusive?
+
+# To answer this, let us first calculate the impact of one on other. 
+# From the matrix, it can be observed that, when considered excellent health only, the probability is 0.0230 + 0.2099 = 0.2329. Considering the population with excellent health and coverage is 0.2099. Thus both the values do not match and they are NOT mutually exclusive.
+
+# (b) What is the probability that a randomly chosen individual has excellent health?
+
+# This can be calculated using the formula - excellent health / total population
+result6 <- sum(0.0230,0.2099)/ sum(0.0230,0.2099,0.0364,0.3123,0.0427,0.2410,0.0192,0.0817,0.0050,0.0289) 
+result6
+
+#(c) What is the probability that a randomly chosen individual has excellent health given that he has health coverage?
+
+result7 <- 0.2099/sum(0.2099,0.0230) 
+result7
+
+#(d) What is the probability that a randomly chosen individual has excellent health given that he doesn't have health coverage?
+
+result8 <- 0.0230/sum(0.0230,0.2099)
+result8
+
+#Do having excellent health and having health coverage appear to be independent?
+#No they dont appear to be mutually exclusive as there is a dependency between them from table.
+
+```
+
+```{r}
+#Problem 4. Exit Poll.
+#Edison Research gathered exit poll results from several sources for the Wisconsin recall election of Scott Walker. They found that 53% of the respondents voted in favor of Scott Walker. Additionally, they estimated that of those who did vote in favor for Scott Walker, 37% had a college degree, while 44% of those who voted against Scott Walker had a college degree. Suppose we randomly sampled a person who participated in the exit poll and found that he had a college degree. What is the probability that he voted in favor of Scott Walker?
+
+#P(CG) is probability for College Graduate ; P(SW) is probability to vote for Scott Walker. Applying Bayes Theorem here
+
+# P(CG) = P(SW) * P(CG | SW) + P(SW') * P(CG | SW')
+# P(SW) = 0.53 ; P(CG | SW) = 0.37 ; P (SW') = 1-P(SW) = 0.47 ; P(CG|SW')=0.44
+
+result9 <- (0.53 * 0.37) + (0.47 * 0.44)
+result9
+```
+
+```{r}
+#Problem 5. Books on a bookshelf
+#The table below shows the distribution of books on a bookcase based on whether they are nonfiction or fiction and hardcover or paperback.
+
+mymat2=matrix(c(13,59,15,8),nrow=2,byrow=TRUE)
+colnames(mymat2)=c("hard","paper")
+rownames(mymat2)=c("fiction","nonfiction")
+
+mymat2
+
+#a.Find the probability of drawing a hardcover book first then a paperback fiction book second when drawing without replacement.
+
+# These are independent events, P (A and B) = P(A) * P(B)
+
+result10 <- sum((mymat2[,"hard"]/sum(mymat2))) * sum((mymat2["fiction","paper"])/(sum(mymat2)-1))
+result10
+
+#(b) Determine the probability of drawing a fiction book first and then a hardcover book second,when drawing without replacement.
+
+result11 <- sum((mymat2["fiction",]/sum(mymat2))) * sum((mymat2[,"hard"])/(sum(mymat2)-1))
+result11
+
+#(c) Calculate the probability of the scenario in part (b), except this time complete the calculations under the scenario where the first book is placed back on the bookcase before randomly drawing the second book.
+
+result12 <- result11 <- sum((mymat2["fiction",]/sum(mymat2))) * sum((mymat2[,"hard"])/sum(mymat2))
+result12
+
+#(d) The final answers to parts (b) and (c) are very similar. Explain why this is the case.
+
+# The reason for this is because the total number of books are higher in number, thus replacing it or not, has no impact.
+
+```
+
+```{r}
+#Problem 6. Is it worth it?
+#Andy is always looking for ways to make money fast. Lately, he has been trying to make money by gambling. Here is the game he is considering playing: The game costs 2 dollars to play. He draws a card from a deck. If he gets a number card (2-10), he wins nothing. For any face card (jack, queen or king), he wins 3 dollars. For any ace, he wins 5 dollars and he wins an extra $20 if he draws the ace of clubs.
+
+#(a) Create a probability model and find Andy's expected profit per game.
+
+totalNumberOfCards <- 52
+numberCards <- 36 #These are (2-10 -> 9 cards) * 4 sets
+costToPlay <- 2 #This amount is for playing one game
+numberOfFaceCards <- 12 #(K,Q,J) * 4 sets
+faceCardProfit <- 1  #2 dollars to play and $3 for winning face card
+probNumberCards <- numberCards/totalNumberOfCards #Probability of Number Cards
+probFaceCards <- numberOfFaceCards/totalNumberOfCards #Probability of Face Cards
+numberOfAces <- 3
+numberOfClubAces <- 1
+probOfAces <- numberOfAces/totalNumberOfCards #Probability Of Aces
+probOfClubAces <- numberOfClubAces/totalNumberOfCards #Probability Of Club Ace
+clubAceProfit <- 23 #2 dollars to play and $25 for winning club ace
+aceProfit <- 3 # 2 dollars to play and $5 for winning an ace
+
+probModel <- data.frame(amount = c(-costToPlay,faceCardProfit,aceProfit,clubAceProfit),probability = c(probNumberCards,probFaceCards,probOfAces,probOfClubAces))
+
+#Here is the probability model
+probModel
+
+#(b) Would you recommend this game to Andy as a good way to make money? Explain.
+
+summaryForProfitOrLoss <- (probFaceCards * faceCardProfit) + (probOfAces * aceProfit) + (probOfClubAces * clubAceProfit) - (probNumberCards * costToPlay)
+
+if(summaryForProfitOrLoss <=0){
+  recommendation <- "No. We don't recommend Andy to play as the summary for the overall play is not a positive number rather this bring him losses !!"
+}else{
+  recommendation <- "Yes. We recommend Andy to Play !!"
+}
+recommendation 
+```
+
+```{r}
+#Problem 7. Scooping ice cream.
+#Ice cream usually comes in 1.5 quart boxes (48 fluid ounces), and ice cream scoops hold about 2 ounces. However, there is some variability in the amount of ice cream in a box as well as the amount of ice cream scooped out. We represent the amount of ice cream in the box as X and the amount scooped out as Y . Suppose these random variables have the following means, standard deviations, and variances:
+
+mymat3=matrix(c(48,1,1, 2,.25,.0625), nrow=2, byrow=TRUE)
+colnames(mymat3)=c("mean", "SD", "Var")
+rownames(mymat3)=c("X, In Box","Y, Scooped")
+mymat3
+
+#(a) An entire box of ice cream, plus 3 scoops from a second box is served at a party. How much ice cream do you expect to have been served at this party? What is the standard deviation of the amount of ice cream served?
+
+iceCreamServed <- mymat3[1,"mean"]+ 3*mymat3[2,"mean"]
+iceCreamServed
+
+#Standard Deviation
+
+standardDeviation1 <- mymat3[1,"SD"] + 3*mymat3[2,"SD"]
+standardDeviation1
+
+#(b) How much ice cream would you expect to be left in the box after scooping out one scoop of ice cream? That is, find the expected value of X ??? Y . What is the standard deviation of the amount left in the box?
+
+iceCreamLeft <- mymat3[1,"mean"] - mymat3[2,"mean"]
+iceCreamLeft
+
+#standardDeviation
+standardDeviation2 <- mymat3[1,"SD"] + (mymat3[2,"Var"] /2)
+standardDeviation2
+
+#(c) Using the context of this exercise, explain why we add variances when we subtract one random variable from another.
+# Reason being to calculate the left over after subtracting one variable from other.
+```
+

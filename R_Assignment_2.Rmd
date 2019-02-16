@@ -1,0 +1,157 @@
+---
+title: "R_Assignment_2"
+output: html_document
+---
+```{r}
+#Here is a list of data sets: http://vincentarelbundock.github.io/Rdatasets/ (click on the csv index for a list)
+#Please select one, download it and perform the following tasks:
+# I have downloaded Gasoline.csv using this link - https://raw.github.com/vincentarelbundock/Rdatasets/master/csv/Ecdat/Gasoline.csv
+
+#1. Use the summary function to gain an overview of the data set. Then display the mean and median for at least two attributes.
+gasolineData <- read.csv(file="C:\\R_WorkSpace\\gasoline.csv",header=TRUE, sep=",")
+gasolineData
+
+summary.data.frame(gasolineData)
+gasolineYearMean <- mean(gasolineData$year,trim=0,na.rm=TRUE)
+gasolineYearMean
+gasolineLGASPCARMean <- mean(gasolineData$lgaspcar,trim=0,na.rm=TRUE)
+gasolineLGASPCARMean
+gasolineYearMedian <- median(gasolineData$year,na.rm = TRUE)
+gasolineYearMedian
+gasolineLGASPCARMedian <- median(gasolineData$lgaspcar,na.rm=TRUE)
+gasolineLGASPCARMedian
+
+#2. Create a new data frame with a subset of the columns and rows. Make sure to rename it.
+
+gasolineSubSetData <- subset.data.frame(gasolineData,year > 1960 & year < 1970, select=c(country,year,lgaspcar))
+gasolineSubSetData
+
+#3. Create new column names for the new data frame
+
+colnames(gasolineSubSetData) <- c("COUNTRY_NAME","YEAR","LGASPCAR")
+summary.data.frame(gasolineSubSetData)
+
+#4. Use the summary function to create an overview of your new data frame. The print the mean and median for the same two attributes. Please compare.
+
+gasolineSubsetYearMean <- mean(gasolineSubSetData$YEAR,trim=0,na.rm=TRUE)
+gasolineSubsetYearMean
+gasolineSubsetLGASPCARMean <- mean(gasolineSubSetData$LGASPCAR,trim=0,na.rm=TRUE)
+gasolineSubsetLGASPCARMean
+gasolineSubsetYearMedian <- median(gasolineSubSetData$YEAR,na.rm = TRUE)
+gasolineSubsetYearMedian
+gasolineSubsetLGASPCARMedian <- median(gasolineSubSetData$LGASPCAR,na.rm = TRUE)
+gasolineSubsetLGASPCARMedian
+
+#Compare Year Mean for original and subset data frames
+
+if (gasolineYearMean > gasolineSubsetYearMean) {
+  compareYearMean <- "Mean of year values in dataframe gasolineData"
+  compareYearMean <- paste(compareYearMean,gasolineYearMean,sep = " - ")
+  compareYearMean <- paste(compareYearMean," is greater than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMean <- paste(compareYearMean, gasolineSubsetYearMean, sep = " - ")
+}else if (gasolineYearMean < gasolineSubsetYearMean){
+  compareYearMean <- "Mean of year values in dataframe gasolineData"
+  compareYearMean <- paste(compareYearMean,gasolineYearMean,sep = " - ")
+  compareYearMean <- paste(compareYearMean," is lesser than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMean <- paste(compareYearMean, gasolineSubsetYearMean, sep = " - ")
+}else {
+  compareYearMean <- "Mean of year values in dataframe gasolineData"
+  compareYearMean <- paste(compareYearMean,gasolineYearMean,sep = " - ")
+  compareYearMean <- paste(compareYearMean," is equal to the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMean <- paste(compareYearMean, gasolineSubsetYearMean, sep = " - ")
+}
+compareYearMean
+
+#Compare Year Median for original and subset data frames
+
+if (gasolineYearMedian > gasolineSubsetYearMedian) {
+  compareYearMedian <- "Median of year values in dataframe gasolineData"
+  compareYearMedian <- paste(compareYearMedian,gasolineYearMedian,sep = " - ")
+  compareYearMedian <- paste(compareYearMedian," is greater than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMedian <- paste(compareYearMedian, gasolineSubsetYearMedian, sep = " - ")
+}else if (gasolineYearMedian < gasolineSubsetYearMedian){
+  compareYearMedian <- "Median of year values in dataframe gasolineData"
+  compareYearMedian <- paste(compareYearMedian,gasolineYearMedian,sep = " - ")
+  compareYearMedian <- paste(compareYearMedian," is lesser than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMedian <- paste(compareYearMedian, gasolineSubsetYearMedian, sep = " - ")
+}else {
+  compareYearMedian <- "Mean of year values in dataframe gasolineData"
+  compareYearMedian <- paste(compareYearMedian,gasolineYearMedian,sep = " - ")
+  compareYearMedian <- paste(compareYearMedian," is equal to the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMedian <- paste(compareYearMedian, gasolineSubsetYearMedian, sep = " - ")
+}
+compareYearMedian
+
+##Compare LGASPCAR Mean for original and subset data frames
+
+if (gasolineLGASPCARMean > gasolineSubsetLGASPCARMean) {
+  compareLGASPCARMean <- "Mean of lgaspcar values in dataframe gasolineData"
+  compareLGASPCARMean <- paste(compareLGASPCARMean,gasolineLGASPCARMean,sep = " - ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean," is greater than the mean value for LGASPCAR from gasolineSubSetData", sep=" ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean, gasolineSubsetLGASPCARMean, sep = " - ")
+}else if (gasolineLGASPCARMean < gasolineSubsetLGASPCARMean){
+  compareLGASPCARMean <- "Mean of lgaspcar values in dataframe gasolineData"
+  compareLGASPCARMean <- paste(compareLGASPCARMean,gasolineLGASPCARMean,sep = " - ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean," is lesser than the mean value for LGASPCAR from gasolineSubSetData", sep=" ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean, gasolineSubsetLGASPCARMean, sep = " - ")
+}else {
+  compareLGASPCARMean <- "Mean of lgaspcar values in dataframe gasolineData"
+  compareLGASPCARMean <- paste(compareLGASPCARMean,gasolineLGASPCARMean,sep = " - ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean," is equal to the mean value for LGASPCAR from gasolineSubSetData", sep=" ")
+  compareLGASPCARMean <- paste(compareLGASPCARMean, gasolineSubsetLGASPCARMean, sep = " - ")
+}
+compareLGASPCARMean
+
+##Compare LGASPCAR Median for original and subset data frames
+
+if (gasolineLGASPCARMedian > gasolineSubsetLGASPCARMedian) {
+  compareLGASPCARMedian <- "Median of lgaspcar values in dataframe gasolineData"
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian,gasolineLGASPCARMedian,sep = " - ")
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian," is greater than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareYearMedian <- paste(compareYearMedian, gasolineSubsetLGASPCARMedian, sep = " - ")
+}else if (gasolineLGASPCARMedian < gasolineSubsetLGASPCARMedian){
+  compareLGASPCARMedian <- "Median of year values in dataframe gasolineData"
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian,gasolineLGASPCARMedian,sep = " - ")
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian," is lesser than the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian, gasolineSubsetLGASPCARMedian, sep = " - ")
+}else {
+  compareLGASPCARMedian <- "Mean of year values in dataframe gasolineData"
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian,gasolineLGASPCARMedian,sep = " - ")
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian," is equal to the mean value for YEAR from gasolineSubSetData", sep=" ")
+  compareLGASPCARMedian <- paste(compareLGASPCARMedian, gasolineSubsetLGASPCARMedian, sep = " - ")
+}
+compareLGASPCARMedian
+
+#5. For at least 3 values in a column please rename so that every value in that column is renamed.For example, suppose I have 20 values of the letter "e" in one column. Rename those values so that all 20 would show as "excellent".
+
+# I have chose to abbreviate country names U.S.A. and U.K. to United States Of America and United Kingdom respectively.
+
+gasolineSubSetData$COUNTRY_NAME <- as.character(gasolineSubSetData$COUNTRY_NAME)
+gasolineSubSetData$COUNTRY_NAME[gasolineSubSetData$COUNTRY_NAME == "U.S.A."] <- "United States Of America"
+gasolineSubSetData$COUNTRY_NAME[gasolineSubSetData$COUNTRY_NAME == "U.K."] <- "United Kingdom"
+
+# To see the changes
+
+resultGasolineData <- gasolineSubSetData[(length(gasolineSubSetData$COUNTRY_NAME)-20):length(gasolineSubSetData$COUNTRY_NAME),]
+resultGasolineData
+
+#6. Display enough rows to see examples of all of steps 1-5 above
+
+#Displaying last 30 rows as the abbreviations can be see at the end of the data frame
+
+newSubsetWithChanges <- gasolineSubSetData[(length(gasolineSubSetData$COUNTRY_NAME)-30):length(gasolineSubSetData$COUNTRY_NAME),]
+newSubsetWithChanges
+
+#7. BONUS - place the original .csv in a github file and have R read from the link. This will be a very useful skill as you progress in your data science education and career.
+
+require(RCurl)
+
+# I have first checked in the csv file into my local repository in GitHub and I am retrieving this as below -
+
+gasolineFromGitHub <-read.csv(text=getURL("https://raw.githubusercontent.com/samsri01/Repo-For-CSV-File-Storage/master/gasoline.csv"),header=TRUE)
+
+gasolineFromGitHub
+
+
+```
+

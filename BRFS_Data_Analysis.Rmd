@@ -1,0 +1,171 @@
+---
+title: "Exploring the BRFSS data"
+output: 
+  html_document: 
+    fig_height: 4
+    highlight: pygments
+    theme: spacelab
+---
+
+## Setup
+
+### Load packages
+
+```{r load-packages, message = FALSE}
+library(ggplot2)
+library(dplyr)
+```
+
+### Load data
+
+```{r load-data}
+load("brfss2013.RData")
+```
+
+* * *
+
+## Part 1: Data
+
+BRFSS Data has collected information which is uniform, state-specific data on preventive health practices and risk behaviors that are linked to chronic diseases, injuries, and preventable infectious diseases that affect the adult population.
+
+#Factors considered for this data ?
+Factors include tobacco use, HIV/AIDS knowledge and prevention, exercise, immunization, health status, healthy days - health-related quality of life, health care access, inadequate sleep, hypertension awareness, cholesterol awareness, chronic health conditions, alcohol consumption, fruits and vegetables consumption, arthritis burden, and seatbelt use. 
+
+#Surveys conducted by which means?
+BRFSS conducted both landline telephone- and cellular telephone-based surveys.
+
+#Population Sampling includes the data collected from whom?
+Adults who participates by using a cellular telephone and resides in a private residence or college housing.
+
+#My analysis and conclusion -
+
+With all the above understanding, one can conclude the following -
+
+#Scope of inference
+The BRFSS study is an observational study employing a stratified sampling design based on random dialing to randomly chosen population. Thinking about the sample and its scope based generalization, it would be wise to consider states with small population when compared to high density states in USA. Samples could have been obtained more from high density states when compared to lower population states.
+
+
+#Generalizability
+This surevy talks about being generic to all adults (18 or more). The sample considered is taken from a very big Population size satisifying certain criteria.
+
+#Causality
+It looks to be casuality study as well, but we cannot confirm this unless we do some statistical analysis on this data, about cause and effect relationship. This should be falling into this category, as there are as many as 330 variables talking about 421775 observations.
+
+* * *
+
+## Part 2: Research questions
+
+**Research quesion 1:**
+From the collected data, Compare general health for men and women to derive which sex is more healthy from the samples? This is one of the interesting questions as both sex will vary in the lifestyle, mental attitudes, emotions and several other factors.
+
+
+**Research quesion 2:**
+Analyze and derive the relation between good food habits (diet), exercise and general health? Good Food Habits (diet) refer to eating fresh fruits and vegetables. Also prove that good food habits and exercise will make people lead an Excellent health. (genhealth - 'Excellent')
+The interest in knowing this is to prove, whether the statement "Good Food, Regular Exercise will help people to stay healthy and live long"
+
+
+**Research quesion 3:**
+
+Show how bad it will be for a person who smokes and also does not exercise, analyze his health conditions? My interest here is to talk about two deadly combinations which a person should avoid willingly/ forcibly as these two factors have a bad impact on overal health of a person? Wanted to check, if we can find atleast one person with Excellent health condition, who has both these bad qualities.
+       
+
+* * *
+
+## Part 3: Exploratory data analysis
+
+
+**Research quesion 1:**
+
+```{r}
+#Check the values for 'sex' and 'genhlth' in brfss2013 data set.
+summary(brfss2013$sex)
+summary(brfss2013$genhlth)
+sex_genhealth_relation <- subset.data.frame(brfss2013,sex=="Male" | sex=="Female",select=c(X_state,sex,genhlth))
+sex_genhealth_relation
+
+sex_genhealth_relation %>% filter(genhlth == "Excellent" & sex == "Male") %>% group_by(genhlth) %>% summarise(count = n()/nrow(sex_genhealth_relation))
+
+sex_genhealth_relation %>% filter(genhlth == "Excellent" & sex == "Female") %>% group_by(genhlth) %>% summarise(count = n()/nrow(sex_genhealth_relation))
+
+sex_genhealth_relation %>% filter(genhlth == "Very good" & sex == "Male") %>% group_by(genhlth) %>% summarise(count = n()/nrow(sex_genhealth_relation))
+
+sex_genhealth_relation %>% filter(genhlth == "Very good" & sex == "Female") %>% group_by(genhlth) %>% summarise(count = n()/nrow(sex_genhealth_relation))
+
+comparisionPlot <- ggplot(data = subset(sex_genhealth_relation, (!is.na(genhlth))), aes(x = genhlth, fill = sex)) +  geom_bar(aes(y = ((..count..) * 100 /sum(..count..))))
+comparisionPlot <- comparisionPlot + xlab("General Health Categories") + ylab("% Values") + ggtitle("Comparision Plot Between Male & Female vs Health Conditions")
+comparisionPlot
+
+```
+#Conclusion - 
+
+Observations confirm the following 
+% Male who have 'Excellent' health conditions is 7.26 %
+% Female who have 'Excellent' health conditions is 10.11 %
+
+% Male who have 'Very good' health conditions is 13.24 %
+% Female who have 'Very good' health conditions is 19.10 %
+
+Overall it can be observed that Female have Excellent and Very Good Health conditions when compared to Men population from the sample collected.
+
+
+**Research quesion 2:**
+
+```{r}
+#Check the summary values for 'food habits (diet)', 'exercise' and 'genhlth'in brfss2013 data set.
+
+summary(brfss2013$X_frutsum)
+summary(brfss2013$X_vegesum)
+summary(brfss2013$X_paindx1)
+summary(brfss2013$genhlth)
+unique(brfss2013$genhlth)
+
+diet_exercise_health_relation <- subset.data.frame(brfss2013,genhlth == "Excellent" | genhlth == "Poor",select=c(X_state,X_frutsum,X_vegesum,X_paindx1,genhlth))
+diet_exercise_health_relation
+
+#Adding number of fruits consumed per day and number of vegetables consumed per day to get sum of diet.
+dietSum <- as.numeric(diet_exercise_health_relation$X_frutsum + diet_exercise_health_relation$X_vegesum)
+
+#Adding the dietSum as one of the columns to data frame
+diet_exercise_health_relation$dietSum <- dietSum
+
+exerciseHealthComparePlot <- ggplot(data = subset(diet_exercise_health_relation, (!is.na(X_paindx1))), aes(x = genhlth, fill = X_paindx1)) +  geom_bar(aes(y = ((..count..) * 100 /sum(..count..))))
+exerciseHealthComparePlot <- exerciseHealthComparePlot + xlab("General Health Categories") + ylab("% Values") + ggtitle("Comparision Plot Between Exercie Vs Health Condition (Excellent, Poor)")
+exerciseHealthComparePlot
+
+
+dietHealthComparePlot <- ggplot(data = subset(diet_exercise_health_relation, (!is.na(dietSum))), aes(x = genhlth, fill = dietSum)) +  geom_bar(aes(y = ((..count..) * 100 /sum(..count..))))
+dietHealthComparePlot <- dietHealthComparePlot + xlab("General Health Categories") + ylab("% Values") + ggtitle("Comparision Plot Between Diet Vs Health Condition (Excellent, Poor)")
+dietHealthComparePlot
+
+compareValuesPlot <- ggplot(data = subset(diet_exercise_health_relation, (!is.na(dietSum) & (!is.na(X_paindx1)) & !is.na(genhlth))), aes(x = X_paindx1, y = dietSum)) +  geom_path(aes(color = genhlth ))
+compareValuesPlot <- compareValuesPlot + xlab("General Health Categories") + ylab("Diet Sums") + ggtitle("Comparision Plot Between Exercise Vs Diet WRT GENERAL HEALTH")
+compareValuesPlot
+
+FruitsVeggiesHealthPlot <- ggplot(data = subset(diet_exercise_health_relation, (!is.na(X_frutsum) & (!is.na(X_vegesum)) & !is.na(genhlth))), aes(x = X_frutsum, y = X_vegesum)) +  geom_path(aes(color = genhlth ))
+FruitsVeggiesHealthPlot <- FruitsVeggiesHealthPlot + xlab("Total fruits consumed") +ylab("Total Vegetables Consumed") +ggtitle("Relationship between the fruits, vegetables consumed and the general health")
+FruitsVeggiesHealthPlot
+```
+#Conclusion -
+
+From all the above research/ analysis from different plots, it can be concluded that people having good diet and performing daily exercises are definitely maintaining Excellent Health when compared to people who are not.
+
+
+**Research quesion 3:**
+
+```{r}
+smoke_exercise_health_relation <- subset.data.frame(brfss2013, smoke100 == "Yes" & X_paindx1 == "Did not meet aerobic recommendations",select=c(X_state,smoke100,X_paindx1,genhlth))
+smoke_exercise_health_relation
+
+smokeHealthCompare <-ggplot(data = subset(smoke_exercise_health_relation, (!is.na(genhlth))), aes(x = smoke100, fill = genhlth)) +  geom_bar(aes(y = ((..count..) * 100 /sum(..count..))))
+smokeHealthCompare <- smokeHealthCompare + xlab("Smoke?") + ylab("% Percentage") + ggtitle("Relationship between Smoking habits and Health")
+smokeHealthCompare <- smokeHealthCompare + guides(fill = guide_legend(title = "Smoked atleast 100 cigarettes"))
+smokeHealthCompare
+
+notActiveHealthCompare <- ggplot(data = subset(smoke_exercise_health_relation, (!is.na(genhlth))), aes(x = X_paindx1, fill = genhlth)) +  geom_bar(aes(y = ((..count..) * 100 /sum(..count..))))
+notActiveHealthCompare <- notActiveHealthCompare + xlab("Activity") + ylab("% Percentage") + ggtitle("Relationship between Activity and Health")
+notActiveHealthCompare
+
+```
+#Conclusion -
+
+There are hardly minimal members who smoke more than 100 cigars each day and no exercise but are maintaining Excellent health conditions. We see a lot number of population failling under 'Poor' health conditions for this scenario. 'Excellent' health conditions with both these factors will not last long. Thus we suggest people to quit smoking and start activity to maintain healthy lifestyle and also 'Excellent' health conditions.
